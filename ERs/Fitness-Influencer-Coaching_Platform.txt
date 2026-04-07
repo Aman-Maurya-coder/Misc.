@@ -1,0 +1,154 @@
+typeface clean
+colorMode pastel
+styleMode watercolor
+title Fitness Influencer Coaching Platform
+
+trainers[icon: person]{
+  trainer_id serial pk
+  name varchar(50) unique not null
+  email varchar(100) unique not null
+  phone char(15) unique null
+  dob date null
+  password varchar(256) null
+  avatar_url url null
+  forgot_password_token text null
+  email_verification_token text null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+clients[icon: person]{
+  client_id serial pk
+  name varchar(50) unique not null
+  email varchar(100) unique not null
+  phone char(15) unique null
+  dob date null
+  password varchar(256) null
+  avatar_url url null
+  forgot_password_token text null
+  email_verification_token text null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+trainer_client_notes[icon: notebook]{
+  note_id serial pk
+  client_subscription int fk not null
+  message text not null
+  created_at timestamp
+  updated_at timestamp
+}
+
+subscriptions[icon: azure-user-subscriptions]{
+  subscription_id serial pk
+  subscription_name varchar(100) not null
+  Description text null
+  price int not null
+  max_people int not null
+  
+  created_at timestamp
+  updated_at timestamp
+}
+
+clients_subscriptions[icon: azure-user-subscriptions]{
+  client_subscription_id serial pk
+  subscription_id int fk not null
+  client_id int fk not null
+  price_at_purchase int not null
+  start_date datetime not null
+  end_date datetime not null
+  status text not null
+  trainer_id int fk
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+plans[icon: azure-plans]{
+  plan_id serial pk
+  diet_plan text not null
+  exercise_plan text not null
+  trainer_id int fk not null
+  price int not null
+  duration varchar(50) not null
+  
+  created_at timestamp
+  updated_at timestamp
+}
+
+clients_plans[icon: azure-savings-plans]{
+  client_plan_id serial pk
+  client_id int fk
+  plan_id int fk
+  price_at_purchase int not null
+  plan_by_trainer int fk not null
+  
+  created_at timestamp
+  updated_at timestamp
+}
+
+sessions[icon: globe]{
+  session_id serial pk
+
+  client_subscription int fk not null
+
+  session_topic varchar(100) not null
+  session_date datetime not null
+  
+  created_at timestamp
+  updated_at timestamp
+}
+
+check_ins[icon: file-text]{
+  check_in_id serial pk
+  date date not null
+  time time not null
+  client_subscription int fk not null
+  
+  created_at timestamp
+  updated_at timestamp
+}
+
+progresses[icon: progress]{
+  progress_id serial pk
+  client_subscription int fk not null
+  weight decimal not null
+  height decimal not null
+  report text not null
+  created_at timestamp
+  updated_at timestamp
+}
+
+payments[icon: payment]{
+  payment_id serial pk
+  amount int not null
+  transaction_id text not null
+  payment_method varchar(100) not null
+  payment_status varchar(20) not null
+  payment_date timestamp
+  
+  client_subscription int fk not null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+
+trainers.trainer_id < plans.trainer_id
+trainers.trainer_id < clients_subscriptions.trainer_id
+trainers.trainer_id < clients_plans.plan_by_trainer
+
+clients.client_id < clients_plans.client_id
+clients.client_id < clients_subscriptions.client_id
+
+plans.plan_id < clients_plans.plan_id
+
+subscriptions.subscription_id < clients_subscriptions.subscription_id
+
+clients_subscriptions.client_subscription_id < check_ins.client_subscription
+clients_subscriptions.client_subscription_id < progresses.client_subscription
+clients_subscriptions.client_subscription_id < trainer_client_notes.client_subscription
+clients_subscriptions.client_subscription_id < sessions.client_subscription
+clients_subscriptions.client_subscription_id - payments.client_subscription
