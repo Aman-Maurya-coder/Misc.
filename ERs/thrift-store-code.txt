@@ -1,0 +1,144 @@
+title Thrift Store DB Design
+// users, thrifted_items, handmade_items, orders, order_items, addresses, payments, shipments, inventories
+
+
+users [icon: user] {
+  id serial pk
+  username varchar(50) unique not null
+  email varchar(100) unique not null
+  phone char(15) null
+  dob date null
+  password varchar(256)
+  payment_info text null
+  avatar_url text null
+  forgot_password_token text null
+  email_verification_token text null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+addresses[icon: azure-location]{
+  address_id serial pk
+  address_type varchar(50) not null
+
+  user_id int fk not null
+
+  pincode varchar(10) not null
+  landmark text null
+  street text null
+  city varchar(100) not null
+  state varchar(100) not null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+items[icon: list]{
+  item_id serial pk
+  item_type varchar(50) not null
+  size varchar(10) null
+  category char(1) null
+  color varchar(50) null 
+  condition varchar(100) null
+  price int not null
+  is_unique boolean not null
+  
+  created_at timestamp
+  updated_at timestamp
+}
+
+inventories[icon: cisco-datacenter]{
+  inventory_id serial pk
+  inventory_address int fk not null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+inventory_items[icon: azure-connections]{
+  inventory_id int pk fk
+  item_id int pk fk
+  quantity int not null
+}
+
+orders[icon: shopping-cart]{
+  order_id serial pk
+  user_id int fk not null
+
+  order_status text not null
+
+  delivery_address_id int fk not null
+  delivery_status varchar(20) null
+  delivery_id text null
+
+  total_amount int not null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+order_items[icon: list]{
+  order_item_id serial pk
+  order_id int fk not null
+
+  item_id int fk not null
+
+  shipment_id int fk null
+
+  price int not null
+  quantity int not null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+order_items_inventories[icon: azure-connections]{
+  order_item_id pk fk not null
+  inventory_id pk fk not null
+  quantity int not null
+}
+
+payments[icon: payment]{
+  payment_id serial pk
+  order_id int fk not null
+  transaction_id text null
+  amount int not null
+  payment_method varchar(100) not null
+  payment_status varchar(20) not null
+  payment_date timestamp
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+shipments[icon: car]{
+  shipment_id serial pk
+  order_id int fk not null
+
+  shipment_status varchar(100) not null
+  remaining_time date null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+users.id < orders.user_id
+users.id < addresses.user_id
+
+addresses.address_id < orders.delivery_address_id
+addresses.address_id - inventories.inventory_address
+
+orders.order_id < order_items.order_id
+orders.order_id < shipments.order_id
+orders.order_id - payments.order_id
+
+
+order_items.order_item_id < order_items_inventories.order_item_id
+
+inventories.inventory_id < order_items_inventories.inventory_id
+inventories.inventory_id < inventory_items.inventory_id
+
+items.item_id < inventory_items.item_id
+
+shipments.shipment_id < order_items.shipment_id
