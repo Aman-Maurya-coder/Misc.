@@ -1,0 +1,133 @@
+patients [icon: user] {
+  id serial pk
+  username varchar(50) unique not null
+  email varchar(100) unique not null
+  phone char(15) null
+  first_name varchar(100) not null
+  last_name varchar(100)
+  gender char(1) not null
+  dob date null
+  address varchar(100)
+  blood_group varchar(3)
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+doctors [icon: doctor] {
+  id serial pk
+  username varchar(50) unique not null
+  email varchar(100) unique not null
+  phone char(15) null
+  dob date null
+  
+  password varchar(256)
+  avatar_url text null
+  forgot_password_token text null
+  email_verification_token text null
+  first_name varchar(100) not null
+  last_name varchar(100)
+  department_id int fk
+  qualification text
+  experience_years int
+  consultation_fees int not null
+  created_at timestamp
+  updated_at timestamp
+}
+
+departments{
+  department_id serial pk
+  department_name text
+  description text
+  created_at timestamp
+  updated_at timestamp
+}
+
+appointments{
+  appointment_id serial pk
+  patient_id int fk not null
+  doctor_id int fk not null
+  appointment_date date not null
+  appointment_time time not null
+  status enum not null
+  reason text not null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+visits{
+  visit_id serial pk
+  appointment_id int fk not null
+  patient_id int fk not null
+  doctor_id int fk not null
+  visit_date date not null
+  visit_status enum not null
+  created_at timestamp
+  updated_at timestamp
+}
+
+consultations{
+  consultation_id serial pk
+  visit_id int fk not null
+  diagnosis text not null
+  prescription_notes text
+  follow_up_date date
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+tests{
+  test_id serial pk
+  test_name varchar(100) not null
+  test_description text
+  test_cost int not null
+
+  created_at timestamp
+  updated_at timestamp
+}
+
+consultation_tests{
+  consultation_test_id serial pk
+  consultation_id int fk not null
+  test_id int fk not null
+  instructions text not null
+  status enum  
+  created_at timestamp
+  updated_at timestamp
+}
+
+reports{
+  report_id serial pk
+  consultation_test_id int fk not null
+  report_file_url url
+  result_summary text 
+  report_date date not null
+  status enum
+  created_at timestamp
+  updated_at timestamp
+}
+
+payments{
+  payment_id serial pk
+  visit_id int fk not null
+  amount int not null
+  payment_method varchar(100) not null
+  payment_status enum not null
+  transaction_id text not null
+  payment_date date
+  created_at timestamp
+  updated_at timestamp
+}
+
+
+patients < appointments
+doctors < appointments
+departments < doctors
+appointments - visits
+visits - consultations
+consultations < consultation_tests
+tests < consultation_tests
+consultation_tests - reports
+visits < payments
