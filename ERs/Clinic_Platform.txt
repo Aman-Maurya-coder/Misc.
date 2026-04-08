@@ -126,6 +126,8 @@ patients < appointments
 doctors < appointments
 departments < doctors
 appointments - visits
+patients < visits
+doctors < visits
 visits - consultations
 consultations < consultation_tests
 tests < consultation_tests
